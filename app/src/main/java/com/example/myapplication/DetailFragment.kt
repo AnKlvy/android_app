@@ -32,16 +32,52 @@ import kotlinx.coroutines.delay
 class DetailFragment : Fragment() {
     private val TAG = "DetailFragment"
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        Log.d(TAG, "onCreate() called")
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        Log.d(TAG, "onCreateView() called")
         return ComposeView(requireContext()).apply {
             setContent {
                 val item = arguments?.getParcelable<ListItem>("item")
                 DetailScreen(item)
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.d(TAG, "onStart() called")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.d(TAG, "onResume() called")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.d(TAG, "onPause() called")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        Log.d(TAG, "onStop() called")
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.d(TAG, "onDestroyView() called")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.d(TAG, "onDestroy() called")
     }
 
     @Composable
@@ -62,51 +98,56 @@ class DetailFragment : Fragment() {
             verticalArrangement = Arrangement.spacedBy(16.dp) // Добавим отступы между элементами
         ) {
             item?.let {
-                // Добавление анимации только для элементов внутри экрана
+                // Обернул картинку и текст в одну анимацию
                 AnimatedVisibility(
                     visible = visible,
                     enter = fadeIn(animationSpec = tween(1000)) + expandIn(),
                     exit = fadeOut(animationSpec = tween(500)) + shrinkOut()
                 ) {
-                    // Картинка с рамкой, без отступов сверху
-                    val image: Painter = painterResource(id = it.imageResId)
-                    Image(
-                        painter = image,
-                        contentDescription = "Detail Image",
-                        modifier = Modifier
-                            .size(300.dp) // Фиксированный размер для квадрата
-                            .border(2.dp, Color.Green, RoundedCornerShape(16.dp))
-                            .clip(RoundedCornerShape(16.dp))
-                    )
-                }
-
-                // Блок с текстом, расположенным ниже картинки
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .border(2.dp, Color.Green, RoundedCornerShape(8.dp))
-                        .padding(16.dp)
-                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center
-                ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(16.dp) // Отступы между картинкой и текстом
                     ) {
-                        Text(
-                            text = "Заголовок: ${it.title}",
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
+                        // Картинка с рамкой
+                        val image: Painter = painterResource(id = it.imageResId)
+                        Image(
+                            painter = image,
+                            contentDescription = "Detail Image",
+                            modifier = Modifier
+                                .size(300.dp) // Фиксированный размер для квадрата
+                                .border(2.dp, Color.Green, RoundedCornerShape(16.dp))
+                                .clip(RoundedCornerShape(16.dp))
                         )
-                        Text(
-                            text = "Подзаголовок: ${it.subtitle}",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
+
+                        // Блок с текстом, расположенным ниже картинки
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(2.dp, Color.Green, RoundedCornerShape(8.dp))
+                                .padding(16.dp)
+                                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
+                                .padding(16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Text(
+                                    text = "Заголовок: ${it.title}",
+                                    style = MaterialTheme.typography.bodyLarge.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                )
+                                Text(
+                                    text = "Подзаголовок: ${it.subtitle}",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                )
+                            }
+                        }
                     }
                 }
             } ?: run {
@@ -124,5 +165,6 @@ class DetailFragment : Fragment() {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
             requireActivity().supportFragmentManager.popBackStack()
         }
+        Log.d(TAG, "onViewCreated() called")
     }
 }
