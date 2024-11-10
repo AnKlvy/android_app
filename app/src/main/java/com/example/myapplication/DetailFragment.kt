@@ -27,6 +27,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import com.airbnb.lottie.compose.*
 import kotlinx.coroutines.delay
 
 class DetailFragment : Fragment() {
@@ -157,7 +158,36 @@ class DetailFragment : Fragment() {
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
+
+            // Добавление Lottie анимации снизу
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(animationSpec = tween(1000)) + expandIn(),
+                exit = fadeOut(animationSpec = tween(500)) + shrinkOut()
+            ) {
+                LottieAnimation(
+                    modifier = Modifier
+                        .size(200.dp)
+                        .padding(top = 32.dp),
+                    resId = R.raw.line // Укажите путь к вашему Lottie JSON файлу
+                )
+            }
         }
+    }
+
+    @Composable
+    fun LottieAnimation(
+        modifier: Modifier = Modifier,
+        resId: Int
+    ) {
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
+        val progress by animateLottieCompositionAsState(composition)
+
+        com.airbnb.lottie.compose.LottieAnimation(
+            modifier = modifier,
+            composition = composition,
+            progress = progress
+        )
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
