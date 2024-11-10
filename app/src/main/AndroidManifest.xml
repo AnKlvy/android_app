@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        />
 
     <application
         android:allowBackup="true"
@@ -12,6 +14,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
+
+        <service android:name=".BatteryService"/>
+
+<!--        <receiver android:name=".BatteryBroadcastReceiver" android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="APP_SPECIFIC_BROADCAST" />-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
+
         <activity
             android:name=".MainActivity"
             android:exported="true">

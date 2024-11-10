@@ -2,6 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    id("com.google.devtools.ksp") version "2.0.21-1.0.25"
+//    kotlin("jvm")
+
 }
 
 android {
@@ -69,6 +72,18 @@ dependencies {
     implementation(libs.androidx.foundation.layout.android)
     implementation(libs.androidx.foundation.layout.android)
     implementation(libs.lottie.compose)
+
+    implementation("com.google.dagger:dagger-compiler:2.51.1")
+    implementation(libs.androidx.room.common)
+    implementation(libs.androidx.room.ktx)
+    ksp("com.google.dagger:dagger-compiler:2.51.1")
+
+//    implementation(libs.room.runtime)
+//    annotationProcessor(libs.androidx.room.room.compiler)
+
+//    ksp(libs.androidx.room.room.compiler)
+
+
 
 
     testImplementation(libs.junit)

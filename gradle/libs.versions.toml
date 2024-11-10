@@ -12,6 +12,7 @@ material = "1.12.0"
 activity = "1.9.2"
 activityCompose = "1.9.2"  # Добавлено
 constraintlayout = "2.1.4"
+roomRuntime = "2.6.1"
 runtimeAndroid = "1.7.3"
 foundationAndroid = "1.7.3"
 material3Android = "1.3.0"
@@ -19,10 +20,13 @@ uiToolingPreviewAndroid = "1.7.4"
 navigationRuntimeKtx = "2.8.3"
 navigationCompose = "2.8.3"
 foundationLayoutAndroid = "1.7.3"
+roomCommon = "2.6.1"
+roomKtx = "2.6.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-fragment-compose = { module = "androidx.fragment:fragment-compose", version.ref = "androidxFragmentCompose" }
+androidx-room-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomCommon" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -38,7 +42,10 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 androidx-ui-tooling-preview-android = { group = "androidx.compose.ui", name = "ui-tooling-preview-android", version.ref = "uiToolingPreviewAndroid" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
-androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }  # Добавлено
+androidx-foundation-layout-android = { group = "androidx.compose.foundation", name = "foundation-layout-android", version.ref = "foundationLayoutAndroid" }
+androidx-room-common = { group = "androidx.room", name = "room-common", version.ref = "roomCommon" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "roomKtx" }  # Добавлено
+room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 
 
 [plugins]
