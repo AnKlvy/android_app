@@ -11,7 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,10 +19,18 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import java.util.Calendar
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.myapplication.data.AppDatabase
+import com.example.myapplication.data.ListItemEntity
+import kotlinx.coroutines.launch
 
 class MenuFragment : Fragment() {
     private val TAG = "MenuFragment"
+
+    // Используем ViewModel для управления данными
+    private val viewModel: MenuViewModel by viewModels { MenuViewModel.Factory(requireActivity().application) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,22 +45,22 @@ class MenuFragment : Fragment() {
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    MenuScreen { item -> (activity as MainActivity).onItemSelected(item) }
+                    MenuScreen(
+                        items = viewModel.items.collectAsState(initial = emptyList()).value, // Подключаем поток данных
+                        onItemClick = { item ->
+                            (activity as MainActivity).onItemSelected(item.toListItem()) // Обработка клика
+                        }
+                    )
                 }
             }
         }
     }
 
     @Composable
-    fun MenuScreen(onItemClick: (ListItem) -> Unit) {
-        // Список элементов
-        val items = listOf(
-            ListItem("Носок", "Дырявый", Calendar.getInstance().time, R.drawable.sock_image),
-            ListItem("Расходы", "Большие", Calendar.getInstance().time, R.drawable.expense_image),
-            ListItem("Лес", "С грибами", Calendar.getInstance().time, R.drawable.forest_image)
-        )
-
-        // Колонка для отображения элементов меню
+    fun MenuScreen(
+        items: List<ListItemEntity>, // Список данных из базы
+        onItemClick: (ListItemEntity) -> Unit
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -62,7 +70,7 @@ class MenuFragment : Fragment() {
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Мои любимые вещи",
+                text = "Элементы из базы данных",
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
@@ -70,22 +78,30 @@ class MenuFragment : Fragment() {
                 ),
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-            items.forEachIndexed { index, item ->
-                MenuItem(item = item, onItemClick = onItemClick)
-                if (index < items.size - 1) {
-                    Divider(
-                        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(vertical = 8.dp)
+            if (items.isEmpty()) {
+                Text(
+                    text = "Нет данных для отображения",
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        color = MaterialTheme.colorScheme.onBackground
                     )
+                )
+            } else {
+                items.forEachIndexed { index, item ->
+                    MenuItem(item = item, onItemClick = onItemClick)
+                    if (index < items.size - 1) {
+                        Divider(
+                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
+                            thickness = 1.dp,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
                 }
             }
         }
     }
 
     @Composable
-    fun MenuItem(item: ListItem, onItemClick: (ListItem) -> Unit) {
-        // Элемент меню с текстом и возможностью клика
+    fun MenuItem(item: ListItemEntity, onItemClick: (ListItemEntity) -> Unit) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -106,35 +122,5 @@ class MenuFragment : Fragment() {
                 )
             )
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        Log.d(TAG, "onStart called")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d(TAG, "onResume called")
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d(TAG, "onPause called")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        Log.d(TAG, "onStop called")
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        Log.d(TAG, "onDestroyView called")
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Log.d(TAG, "onDestroy called")
     }
 }

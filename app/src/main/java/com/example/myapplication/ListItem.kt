@@ -7,21 +7,21 @@ import java.util.*
 data class ListItem(
     val title: String,
     val subtitle: String,
-    val date: Date,
+    val date: Long,
     val imageResId: Int // Ресурс изображения
 ) : Parcelable {
     // Конструктор для создания объекта из Parcel
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
-        Date(parcel.readLong()),
+        parcel.readLong(),
         parcel.readInt() // Чтение идентификатора ресурса изображения из Parcel
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(title)
         parcel.writeString(subtitle)
-        parcel.writeLong(date.time)
+        parcel.writeLong(date)
         parcel.writeInt(imageResId) // Запись ресурса изображения в Parcel
     }
 
