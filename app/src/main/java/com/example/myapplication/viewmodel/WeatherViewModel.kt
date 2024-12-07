@@ -2,13 +2,13 @@ package com.example.myapplication.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.data.api.ApiClient
+import com.example.myapplication.data.WeatherRepository
 import com.example.myapplication.data.api.WeatherResponse
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class WeatherViewModel : ViewModel() {
+class WeatherViewModel(private val weatherRepository: WeatherRepository) : ViewModel() {
     private val _weatherList = MutableStateFlow<List<WeatherResponse>>(emptyList())
     val weatherList: StateFlow<List<WeatherResponse>> get() = _weatherList
 
@@ -21,14 +21,11 @@ class WeatherViewModel : ViewModel() {
 
     private fun fetchWeatherData() {
         viewModelScope.launch {
-            val results = cities.mapNotNull { city ->
-                try {
-                    ApiClient.weatherApi.getCityWeather(city, apiKey)
-                } catch (e: Exception) {
-                    null
-                }
-            }
-            _weatherList.value = results
+            // Получаем и сохраняем данные в базу
+            weatherRepository.fetchAndSaveWeatherData(cities, apiKey)
+
+            // Загружаем сохраненные данные из базы данных и обновляем список
+            _weatherList.value = weatherRepository.getWeatherFromDatabase()
         }
     }
 }

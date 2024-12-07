@@ -1,89 +1,69 @@
 package com.example.myapplication
 
-import android.content.ContentValues.TAG
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavController
+import androidx.navigation.compose.*
+import com.example.myapplication.data.AppDatabase
+import com.example.myapplication.data.WeatherRepository
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.rememberImagePainter
-import com.example.myapplication.viewmodel.WeatherViewModel
-import com.example.myapplication.data.api.WeatherResponse
-import java.text.SimpleDateFormat
-import java.util.*
+import com.example.myapplication.data.ListItemEntity
+import com.example.myapplication.ui.DetailView
 
 class MainActivity : ComponentActivity() {
-//    private val TAG = "MainActivity"
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val weatherDao = AppDatabase.getDatabase(applicationContext).weatherDao()
+        val weatherRepository = WeatherRepository(weatherDao)
+        val menuViewModel = ViewModelProvider(this, MenuViewModel.Factory(application)).get(MenuViewModel::class.java)
+
         setContent {
-            MaterialTheme {
-                WeatherScreen() // Здесь отображаем экран с погодой
+            val navController = rememberNavController()
+            NavHost(navController = navController, startDestination = "menu_screen") {
+                composable("menu_screen") {
+                    MenuScreen(navController = navController, viewModel = menuViewModel)
+                }
+                composable("detail_screen/{itemId}") { backStackEntry ->
+                    val itemId = backStackEntry.arguments?.getString("itemId") ?: return@composable
+                    DetailView(itemId = itemId, viewModel = menuViewModel)
+                }
             }
         }
     }
 }
 
 @Composable
-fun WeatherScreen(viewModel: WeatherViewModel = viewModel()) {
-    val weatherList = viewModel.weatherList.collectAsState(initial = emptyList())
-// Логирование для проверки данных
-    Log.d(TAG, "Weather data: ${weatherList.value}")
-    LazyColumn(
-        modifier = Modifier.fillMaxSize().padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        // Используем itemsIndexed для работы с индексами
-        itemsIndexed(weatherList.value) { index, weather ->
-            WeatherItem(weather) // Отображаем каждый элемент погоды
+fun MenuScreen(navController: NavController, viewModel: MenuViewModel) {
+    val items = viewModel.items.collectAsState().value
+
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        items.forEach { item ->
+            MenuItemView(item = item, navController = navController)
         }
     }
 }
 
-
-
-
 @Composable
-fun WeatherItem(weather: WeatherResponse) {
-    val iconUrl = "https://openweathermap.org/img/wn/${weather.weather.firstOrNull()?.icon}@2x.png"
-    val formattedDate = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault()).format(Date(weather.dt * 1000))
-
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(8.dp)
+fun MenuItemView(item: ListItemEntity, navController: NavController) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable {
+                navController.navigate("detail_screen/${item.id}")
+            },
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = rememberImagePainter(iconUrl),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.size(64.dp).clip(CircleShape)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(text = weather.name, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyLarge)
-                Text(text = weather.weather.firstOrNull()?.description ?: "", style = MaterialTheme.typography.bodyMedium)
-                Text(text = "Температура: ${weather.main.temp}°C", style = MaterialTheme.typography.bodyMedium)
-                Text(text = formattedDate, style = MaterialTheme.typography.bodySmall)
-            }
-        }
+        Text(text = "Город: ${item.name}")
     }
 }

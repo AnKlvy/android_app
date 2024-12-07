@@ -21,9 +21,13 @@ class MenuViewModel(application: Application) : ViewModel() {
 
     private fun loadItems() {
         viewModelScope.launch {
-            val data = db.listItemDao().getAll()
+            val data = db.weatherDao().getAllWeatherItems()
             _items.value = data
         }
+    }
+
+    fun getItemById(itemId: Long): ListItemEntity? {
+        return _items.value.find { it.id.toLong() == itemId }
     }
 
     class Factory(private val application: Application) : ViewModelProvider.Factory {
