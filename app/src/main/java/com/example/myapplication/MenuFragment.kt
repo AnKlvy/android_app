@@ -116,7 +116,7 @@ class MenuFragment : Fragment() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height((intrinsicSize.height / intrinsicSize.width * 360).dp) // Вычисление высоты
-                    .background(Color.LightGray)
+                    .background(Color.White)
             ) {
                 Image(
                     painter = image,
