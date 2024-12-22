@@ -26,6 +26,15 @@ class MenuViewModel(application: Application) : ViewModel() {
         }
     }
 
+    // Очистить базу данных
+    fun clearDatabase() {
+        viewModelScope.launch {
+            db.listItemDao().clearDatabase() // Метод для удаления всех данных
+            // Обновить список, чтобы интерфейс отобразил изменения
+            _items.value = emptyList()
+        }
+    }
+
     class Factory(private val application: Application) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MenuViewModel::class.java)) {

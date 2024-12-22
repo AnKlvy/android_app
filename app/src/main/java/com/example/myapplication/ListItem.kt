@@ -2,27 +2,30 @@ package com.example.myapplication
 
 import android.os.Parcel
 import android.os.Parcelable
-import java.util.*
 
 data class ListItem(
     val title: String,
     val subtitle: String,
     val date: Long,
-    val imageResId: Int // Ресурс изображения
+    val imageResId: Int,
+    val text: String
+
 ) : Parcelable {
     // Конструктор для создания объекта из Parcel
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readLong(),
-        parcel.readInt() // Чтение идентификатора ресурса изображения из Parcel
+        parcel.readInt(),
+        parcel.readString() ?: ""
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(title)
         parcel.writeString(subtitle)
         parcel.writeLong(date)
-        parcel.writeInt(imageResId) // Запись ресурса изображения в Parcel
+        parcel.writeInt(imageResId)
+        parcel.writeString(text)
     }
 
     override fun describeContents(): Int {

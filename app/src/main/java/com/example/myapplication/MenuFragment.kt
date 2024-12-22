@@ -5,31 +5,34 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.myapplication.data.AppDatabase
 import com.example.myapplication.data.ListItemEntity
-import kotlinx.coroutines.launch
 
 class MenuFragment : Fragment() {
     private val TAG = "MenuFragment"
 
-    // Используем ViewModel для управления данными
     private val viewModel: MenuViewModel by viewModels { MenuViewModel.Factory(requireActivity().application) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,62 +40,31 @@ class MenuFragment : Fragment() {
         Log.d(TAG, "onCreate called")
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Используем ComposeView для отображения Compose UI внутри Fragment
         return ComposeView(requireContext()).apply {
             setContent {
                 MaterialTheme {
-                    MenuScreen(
-                        items = viewModel.items.collectAsState(initial = emptyList()).value, // Подключаем поток данных
-                        onItemClick = { item ->
-                            (activity as MainActivity).onItemSelected(item.toListItem()) // Обработка клика
-                        }
-                    )
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun MenuScreen(
-        items: List<ListItemEntity>, // Список данных из базы
-        onItemClick: (ListItemEntity) -> Unit
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "Элементы из базы данных",
-                style = MaterialTheme.typography.headlineSmall.copy(
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                ),
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-            if (items.isEmpty()) {
-                Text(
-                    text = "Нет данных для отображения",
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                )
-            } else {
-                items.forEachIndexed { index, item ->
-                    MenuItem(item = item, onItemClick = onItemClick)
-                    if (index < items.size - 1) {
-                        Divider(
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
-                            thickness = 1.dp,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        TopAppBar(
+                            title = { Text("Новости") },
+                            actions = {
+                                IconButton(onClick = { showMenu() }) {
+                                    Icon(
+                                        imageVector = Icons.Default.MoreVert,
+                                        contentDescription = "More options"
+                                    )
+                                }
+                            }
+                        )
+                        NewsScreen(
+                            items = viewModel.items.collectAsState(initial = emptyList()).value,
+                            onItemClick = { item ->
+                                (activity as MainActivity).onItemSelected(item.toListItem())
+                            }
                         )
                     }
                 }
@@ -100,27 +72,79 @@ class MenuFragment : Fragment() {
         }
     }
 
+    private fun showMenu() {
+        val alertDialog = androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Меню")
+            .setItems(arrayOf("Очистить базу данных")) { _, _ ->
+                viewModel.clearDatabase()
+            }
+            .create()
+        alertDialog.show()
+    }
+
     @Composable
-    fun MenuItem(item: ListItemEntity, onItemClick: (ListItemEntity) -> Unit) {
-        Box(
+    fun NewsScreen(items: List<ListItemEntity>, onItemClick: (ListItemEntity) -> Unit) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            items(items) { item ->
+                NewsItem(item = item, onItemClick = onItemClick)
+            }
+        }
+    }
+
+    @Composable
+    fun NewsItem(item: ListItemEntity, onItemClick: (ListItemEntity) -> Unit) {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { onItemClick(item) }
-                .padding(vertical = 8.dp)
                 .background(
-                    color = MaterialTheme.colorScheme.primaryContainer,
+                    color = MaterialTheme.colorScheme.surface,
                     shape = RoundedCornerShape(8.dp)
                 )
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
+                .padding(9.9.dp)
         ) {
+            val image = painterResource(id = item.imageResId)
+            val intrinsicSize = image.intrinsicSize
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height((intrinsicSize.height / intrinsicSize.width * 360).dp) // Вычисление высоты
+                    .background(Color.LightGray)
+            ) {
+                Image(
+                    painter = image,
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Fit // Изображение полностью вмещается
+                )
+            }
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = item.title,
-                style = MaterialTheme.typography.bodyLarge.copy(
+                style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
+                    fontSize = 20.sp
+                ),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = item.text,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
+
 }

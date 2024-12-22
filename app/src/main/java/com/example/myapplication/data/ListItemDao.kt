@@ -15,4 +15,7 @@ interface ListItemDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(items: List<ListItemEntity>)
+
+    @Query("DELETE FROM list_items")
+    suspend fun clearDatabase()
 }

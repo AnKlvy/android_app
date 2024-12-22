@@ -3,12 +3,6 @@ package com.example.myapplication
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
 import androidx.lifecycle.lifecycleScope
@@ -42,28 +36,30 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "Dark Theme Enabled: ${preferencesHelper.isDarkThemeEnabled()}")
         Log.d(TAG, "Object count: ${preferencesHelper.getObjectCount()}")
 
-        // Пример работы с Room (сохранение данных)
-        // Преобразование списка ListItem в список ListItemEntity для записи в Room
         val itemsForRoom = listOf(
             ListItemEntity(
                 title = "Носок",
                 subtitle = "Дырявый",
                 date = Calendar.getInstance().timeInMillis,
-                imageResId = R.drawable.sock_image
+                imageResId = R.drawable.sock_image,
+                text = "Этот носок прошел множество дорог, но, к сожалению, дырки не оставили шансов на его спасение. Возможно, он заслуживает вторую жизнь в роли тряпки для пыли."
             ),
             ListItemEntity(
                 title = "Расходы",
                 subtitle = "Большие",
                 date = Calendar.getInstance().timeInMillis,
-                imageResId = R.drawable.expense_image
+                imageResId = R.drawable.expense_image,
+                text = "Расходы в этом месяце превысили бюджет. Основные траты пришлись на поездки, покупки и непредвиденные расходы. Пришло время пересмотреть финансовые планы."
             ),
             ListItemEntity(
                 title = "Лес",
                 subtitle = "С грибами",
                 date = Calendar.getInstance().timeInMillis,
-                imageResId = R.drawable.forest_image
+                imageResId = R.drawable.forest_image,
+                text = "Этот лес, где в тенистых уголках спрятались грибы, будто из сказки. Тихая охота была успешной, но стоит помнить, что грибы нужно собирать с осторожностью."
             )
         )
+
 
 
         lifecycleScope.launch {
@@ -95,28 +91,4 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @Composable
-    fun MainScreen() {
-        val configuration = LocalConfiguration.current
-        if (configuration.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
-            // Горизонтальная ориентация
-            Row(modifier = Modifier.fillMaxSize()) {
-                MenuFragment().apply {
-                    showFragment(this) // Показываем MenuFragment слева
-                }
-
-                DetailFragment().apply {
-                    showFragment(this) // Показываем DetailFragment справа
-                }
-            }
-        } else {
-            // Вертикальная ориентация
-            Column(modifier = Modifier.fillMaxSize()) {
-                // Здесь отображаем только одно из меню или деталей в зависимости от выбора
-                MenuFragment().apply {
-                    showFragment(this) // Показываем MenuFragment
-                }
-            }
-        }
-    }
 }
